@@ -1,9 +1,12 @@
 <?php
 
 	include "rootPath.php";
-	include ROOT . "/DBWorker/Db.php";
 	include ROOT . "/functions/clearFunction.php";
-		
+	include ROOT . "/functions/validateFunctions.php";
+	include_once ROOT . "/DBWorker/getMethods.php";
+	include_once ROOT . "/DBWorker/insertMethods.php";
+			
+			
 	//Initial variables
 	$name = '';
 	$email = '';
@@ -15,111 +18,115 @@
 	$agreement = 'False';
 	$errors = false;
 	
+	
 		//Validate data
 		if ($_SERVER["REQUEST_METHOD"] == "POST") {
 			
+			
 			//Check User Name
-			if (empty($_POST["name"])) {
+			if (!userFieldFilled($_POST['name'])) {
+				
 				$errors[] = "Name is required";
-			} else{
-				$name = clear_data($_POST["name"]);
+				
+			} 
+			
+			else {
+				
+				$name = clear_data($_POST['name']);
 				
 				//Check if name only contains letters and whitespace
-				if (!preg_match("/^[a-zA-Z ]*$/",$name)) {
+				if (!userNameWellFormed($name)) {
 				  $errors[] = "Only letters and white space allowed"; 
 				}
 			}
 	  
+	  
 			//Check User E-mail
-			if (empty($_POST["email"])) {
+			if (!userFieldFilled($_POST["email"])) {
 				$errors[] = "Email is required";
-			} else{
-				$email = clear_data($_POST["email"]);
+			} 
+			
+			else {
+				
 				// check if e-mail address is well-formed
-				if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
+				
+				$email = clear_data($_POST["email"]);
+				
+				if (!userEmailWellFormed($email)) {
 					$errors[] = "Invalid email format"; 
-				} else{
-					
-					//Check E-mail Existence
-					$sql = 'SELECT COUNT(*) FROM user WHERE email = :email';
-					$result = $db->prepare($sql);
-					$result->bindParam(':email', $email, PDO::PARAM_STR);
-					$result->execute();
-					
-					if($result->fetchColumn()){
+				} 
+				
+				//Check E-mail Existence
+				else {
+										
+					if (userEmailExists($email)) {
 						$errors[] = 'E-mail already exists';
-					} else{
-						$email = clear_data($_POST["email"]);
-					}
+					} 	
 				}
-			}	
+			}
+
+			
+			//Check birthDate
+			if (!userFieldFilled($_POST["birthDate"])) {
+				$errors[] = 'You must select Your Birth Date';
+			} else {
+				$birthDate = $_POST["birthDate"];
+			}
 			
 			//Check User Country
-			if(empty($_POST["country"])){
-				$errors[] = "Country is required";
-			} else{
+			if (!userFieldFilled($_POST["country"])) {
+				$errors[] = "You must select Your country";
+			} else {
 				$selectedCountry = clear_data($_POST["country"]);
-				$countryID = $db->query("SELECT id FROM country WHERE name='$selectedCountry'");
-				$countryID->setFetchMode(PDO::FETCH_ASSOC);
-				$countryID = $countryID->fetch();
-			}
-		
-			//Check User Password
-			if(empty($_POST["password"])){
-				$errors[] = 'Password is required';
-			}else if($_POST["password"] != $_POST["confirmPassword"]){
-				$errors[] = 'Wrong password!';
-			}else {
-				$password = clear_data($_POST["password"]);
-								
-				$password = password_hash($password, PASSWORD_DEFAULT);
+				$countryID = getCountryID($selectedCountry);
 			}
 			
+			
 			//Check User Login
-			if(empty($_POST["login"])){
+			if (!userFieldFilled($_POST["login"])) {
 				$errors[] = 'Login is required';
-			} else{
+			} else {
 				
 				//Check Login Existence
 				$login = clear_data($_POST["login"]);
-				$sql = 'SELECT COUNT(*) FROM user WHERE login = :login';
-				$result = $db->prepare($sql);
-				$result->bindParam(':login', $login, PDO::PARAM_STR);
-				$result->execute();
 				
-				if($result->fetchColumn()){
+				if (userLoginExists($login)) {
 					$errors[] = 'Login already exists';
-				} else{
-					$login = clear_data($_POST["login"]);
+				} 
+				
+			}
+			
+			
+			//Check User Password
+			if (!userFieldFilled($_POST["password"])) {
+				$errors[] = 'Password is required';
+			} 
+			
+			else {
+				$password = clear_data($_POST["password"]);
+				$confirmPassword = clear_data($_POST["confirmPassword"]);
+				
+				if (!userPasswordConfirmed($password, $confirmPassword)) {
+					$errors[] = 'Wrong password!';
+				}
+				
+				else {
+					$password = password_hash($password, PASSWORD_DEFAULT);
 				}
 			}
 			
+			
 			//Check agreement
-			if(!isset($_POST["agreement"])){
+			if (!isset($_POST["agreement"])) {
 				$errors[] = 'You must agree with terms and conditions';
-			} else{
+			} else {
 				$agreement = $_POST["agreement"];
 			}
 			
-			//Check birthDate
-			if(empty($_POST["birthDate"])){
-				$errors[] = 'You must select Your Birth Date';
-			} else{
-				$birthDate = $_POST["birthDate"];
-			}
 				
 			//Insert new user and sign in
 			if($errors == false){
-				$sql = 'INSERT INTO user (registrationTime, name, email, birthDate, login, password, countryID) ' 
-						. 'VALUES (UNIX_TIMESTAMP(), :name, :email, :birthDate, :login, :password, :countryID)';
-				$result = $db->prepare($sql);
-				$result->bindParam(':name', $name, PDO::PARAM_STR);
-				$result->bindParam(':email', $email, PDO::PARAM_STR);
-				$result->bindParam(':birthDate', $birthDate, PDO::PARAM_STR);
-				$result->bindParam(':login', $login, PDO::PARAM_STR);
-				$result->bindParam(':password', $password, PDO::PARAM_STR);
-				$result->bindParam(':countryID', $countryID['id'], PDO::PARAM_INT);
-				$result->execute();
+				insertUser($name, $email, $birthDate, $login, $password, $countryID['id']);
 				header("Location: page.php?login=" . $login);
 			}
 			

@@ -1,5 +1,5 @@
 <?php
-	include "validation/registrationValidate.php";
+	include_once "validation/registrationValidate.php";
 ?>
 
 <!DOCTYPE html>
@@ -10,7 +10,7 @@
 	
 	<body>
 		
-		<?php include ROOT . "/errors/errorsView.php";?>
+		<?php include "errors/errorsView.php";?>
 	
 		<div class = "singup-form">
 			<h3>Registration</h3>
@@ -18,7 +18,7 @@
 				<p><input type = "text" name = "name" placeholder = "Real Name" value = "<?php echo $name;?>"/></p>
 				<p><input type = "email" name = "email" placeholder = "E-mail" value = "<?php echo $email;?>"/></p>
 				<p>Your Birth Date: <input type="date" name = "birthDate" value = "<?php echo $birthDate;?>"></p>
-				<p>Select Your Country: <?php include ROOT . "/DBWorker/getCountries.php";?></p>
+				<p>Select Your Country: <?php include_once "DBWorker/getCountries.php";?></p>
 				<p><input type = "text" name = "login" placeholder = "Login" value = "<?php echo $login;?>"/></p>
 				<p><input type = "password" name = "password" placeholder = "Password"/></p>
 				<p><input type = "password" name = "confirmPassword" placeholder = "ConfirmPassword"/></p>

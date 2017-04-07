@@ -1,7 +1,11 @@
 <?php
-	include "rootPath.php";
-	include ROOT . "/DBWorker/Db.php";
-	include ROOT . "/DBWorker/getUsersInfo.php";
+	include_once "rootPath.php";
+	include_once ROOT . "/DBWorker/Db.php";
+	include_once ROOT . "/DBWorker/getMethods.php";
+	
+	if($_SERVER['REQUEST_METHOD'] == 'GET'){
+		$userInfo = getUserInfo($_GET['login']);
+	}
 ?>
 
 <!DOCTYPE html>

@@ -1,14 +1,9 @@
 <?php
-	//Getting countries from DB
-	$db = Db::getConnection();
-	$countriesList = array();
-	$result = $db->query('SELECT * FROM country');
-	$i = 0;
-		while($row = $result->fetch()){
-			$countriesList[$i]['name'] = $row['name'];
-			$countriesList[$i]['id'] = $row['id'];
-			$i++;
-		}
+	
+	include_once "getMethods.php";
+	
+	$countriesList = getCountries();
+	
 ?>
 
 <select name = "country">
