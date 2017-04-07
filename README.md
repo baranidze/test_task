@@ -14,7 +14,7 @@ File "rootPath.php" is needed to organize routing between folders. It should be 
 - File "clearFunction.php" contains function that clears a string of all unnecessary characters.
 - File "validationFunctions.php" contains validation functions.
 4. Folder "validation" contains two files. These files contains validation algorithms that are used when user registers or signs in.
-The main page is "index.php". It contains sign in form and registration link. 
-File "registration.php" contains registration form. There are fields that need to be filled. 
-File "page.php" contains user information. It displays user's name and email. User login that is sent in URL (method GET) is needed to get user information from DB.
+5. The main page is "index.php". It contains sign in form and registration link. 
+6. File "registration.php" contains registration form. There are fields that need to be filled. 
+7. File "page.php" contains user information. It displays user's name and email. User login that is sent in URL (method GET) is needed to get user information from DB.
 
